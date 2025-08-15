@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>日報ジェネレーター</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>日報ジェネレーター</h1>
+    </header>
+
+    <main class="container">
+      <section class="date-section card">
+        <label for="report-date">日付</label>
+        <input type="date" id="report-date" />
+      </section>
+
+      <section id="categories" class="categories"></section>
+
+      <section class="one-liner card">
+        <label for="one-liner">今日の一言</label>
+        <textarea id="one-liner" rows="3" placeholder="今日の気分やひとこと"></textarea>
+      </section>
+
+      <section class="actions">
+        <button id="generate" class="primary">日報ジェネる</button>
+      </section>
+
+      <section class="result card">
+        <div class="result-actions">
+          <h2>生成結果</h2>
+          <button id="copy" class="secondary" title="結果をコピー">コピー</button>
+        </div>
+        <textarea id="output" readonly rows="14" placeholder="ここに生成結果が表示されます"></textarea>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <small>手書き風な紙っぽいUIで日報作成をちょっと楽しく。</small>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+  </html>
+
