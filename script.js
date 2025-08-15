@@ -140,7 +140,7 @@ function renderCategories() {
       label.textContent = item.label;
 
       let extra = document.createElement('div');
-      extra.style.justifySelf = 'end';
+      extra.className = 'extra';
 
       if (item.type === 'count') {
         const num = document.createElement('input');

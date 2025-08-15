@@ -81,12 +81,13 @@ textarea[readonly] { background: #faf7f0; }
 .items { display: grid; gap: 10px; }
 .item-row {
   display: grid;
-  grid-template-columns: 28px 1fr auto auto;
+  /* 固定列幅で横幅のガタつきを防止 */
+  grid-template-columns: 28px 1fr 116px 72px;
   align-items: center;
   gap: 8px;
 }
-.item-row input[type="number"] { width: 110px; }
-.item-row .remove { color: var(--point); }
+.item-row .extra input[type="number"] { width: 100%; }
+.item-row .remove { color: var(--point); width: 72px; text-align: center; }
 
 .hint { color: #856f5b; font-size: 12px; }
 
@@ -117,6 +118,12 @@ button:active { transform: translateY(1px); }
 
 @media (min-width: 760px) {
   .categories { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 359px) {
+  /* 超小型端末では数値欄を少し縮める */
+  .item-row { grid-template-columns: 28px 1fr 100px 64px; }
+  .item-row .remove { width: 64px; }
 }
 
 /* Touch-friendly sizing */
