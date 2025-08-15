@@ -93,6 +93,7 @@ textarea[readonly] { background: #faf7f0; }
   align-items: center;
   gap: 8px;
 }
+.item-row label { min-width: 0; word-break: break-word; }
 .item-row .extra input[type="number"] { width: 100%; }
 .item-row .remove { color: var(--point); width: 72px; text-align: center; }
 
@@ -125,10 +126,26 @@ button:active { transform: translateY(1px); }
 
 /* PCでも1カラムに統一し幅を揃えるため、2カラム指定は削除 */
 
+/* 小画面向けの最適化 */
+@media (max-width: 600px) {
+  /* カテゴリヘッダーを縦並びにして、項目追加をタイトル下へ */
+  .category-header { flex-direction: column; align-items: flex-start; }
+  .category-controls { width: 100%; }
+  .adder { width: 100%; flex-wrap: wrap; }
+  .adder input[type="text"] { flex: 1 1 200px; min-width: 0; }
+  .adder select { flex: 0 0 160px; }
+  .adder button { flex: 0 0 auto; }
+
+  /* 各項目行は2段構成（1行目: チェック+ラベル、2行目: 数値/削除） */
+  .item-row { grid-template-columns: 28px 1fr; }
+  .item-row .extra { grid-column: 2 / -1; width: 100%; }
+  .item-row .remove { grid-column: 2 / -1; justify-self: end; width: auto; }
+}
+
 @media (max-width: 359px) {
-  /* 超小型端末では数値欄を少し縮める */
-  .item-row { grid-template-columns: 28px 1fr 100px 64px; }
-  .item-row .remove { width: 64px; }
+  /* 超小型端末でも2段構成を維持 */
+  .item-row { grid-template-columns: 28px 1fr; }
+  .item-row .remove { width: auto; }
 }
 
 /* Touch-friendly sizing */
