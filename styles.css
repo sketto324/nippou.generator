@@ -8,7 +8,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { height: 100%; }
+html, body { min-height: 100%; }
 body {
   margin: 0;
   font-family: ui-rounded, system-ui, -apple-system, "Hiragino Maru Gothic ProN", "Yu Gothic UI", "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
@@ -61,6 +61,13 @@ textarea, select {
 }
 
 textarea[readonly] { background: #faf7f0; }
+/* 生成結果のスクロールを確保（スマホ対応） */
+#output {
+  max-height: 50vh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  white-space: pre-wrap;
+}
 
 .categories { display: grid; gap: 16px; }
 
@@ -116,9 +123,7 @@ button:active { transform: translateY(1px); }
 
 .footer { text-align: center; padding: 24px; color: #6b5c4f; }
 
-@media (min-width: 760px) {
-  .categories { grid-template-columns: 1fr 1fr; }
-}
+/* PCでも1カラムに統一し幅を揃えるため、2カラム指定は削除 */
 
 @media (max-width: 359px) {
   /* 超小型端末では数値欄を少し縮める */
