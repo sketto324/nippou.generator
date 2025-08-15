@@ -78,6 +78,7 @@ textarea[readonly] { background: #faf7f0; }
   gap: 10px;
   margin-bottom: 10px;
 }
+.category-headline { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
 .category-emoji {
   font-size: 22px;
   line-height: 1;
@@ -125,6 +126,30 @@ button:active { transform: translateY(1px); }
 .footer { text-align: center; padding: 24px; color: #6b5c4f; }
 
 /* PCでも1カラムに統一し幅を揃えるため、2カラム指定は削除 */
+
+/* 日付欄を中央ぞろえ */
+.date-section input[type="date"] {
+  max-width: 260px;
+  margin: 0 auto;
+  display: block;
+  text-align: center;
+  text-align-last: center;
+}
+
+/* 小画面向けの最適化：タイトル行と追加行を分離 */
+@media (max-width: 600px) {
+  .category-header { flex-wrap: wrap; }
+  .category-controls { flex-basis: 100%; margin-left: 0; }
+  .adder { width: 100%; flex-wrap: wrap; }
+  .adder input[type="text"] { flex: 1 1 200px; min-width: 0; }
+  .adder select { flex: 0 0 160px; }
+  .adder button { flex: 0 0 auto; }
+
+  /* 各項目行は2段構成 */
+  .item-row { grid-template-columns: 28px 1fr; }
+  .item-row .extra { grid-column: 2 / -1; width: 100%; }
+  .item-row .remove { grid-column: 2 / -1; justify-self: end; width: auto; }
+}
 
 /* 小画面向けの最適化 */
 @media (max-width: 600px) {

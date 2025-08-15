@@ -89,7 +89,11 @@ function renderCategories() {
     const title = document.createElement('div');
     title.className = 'category-title';
     title.textContent = cat.title;
-    header.append(emoji, title);
+
+    // Wrap emoji + title together so they stay on one line
+    const headline = document.createElement('div');
+    headline.className = 'category-headline';
+    headline.append(emoji, title);
 
     const controls = document.createElement('div');
     controls.className = 'category-controls';
@@ -120,7 +124,7 @@ function renderCategories() {
     });
     addRow.append(nameInput, typeSelect, addBtn);
     controls.appendChild(addRow);
-    header.appendChild(controls);
+    header.append(headline, controls);
 
     card.appendChild(header);
 
@@ -189,10 +193,11 @@ function generateReport() {
   const lines = [];
   if (dateStr) {
     const d = new Date(dateStr.replaceAll('-', '/'));
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const da = String(d.getDate()).padStart(2, '0');
-    lines.push(`${y}/${m}/${da}`);
+    const wk = ['日','月','火','水','木','金','土'];
+    const m = d.getMonth() + 1;
+    const da = d.getDate();
+    const w = wk[d.getDay()];
+    lines.push(`${m}月${da}日（${w}）`);
   }
 
   categories.forEach((cat) => {
