@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>管理モード | 日報ジェネレーター</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      body { max-width: 840px; margin: 0 auto; padding: 16px; }
+      .row { display: flex; gap: 8px; align-items: center; }
+      .row input[type="password"] { flex: 1; }
+      textarea { width: 100%; height: 60vh; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+      button { padding: 10px 14px; }
+      .small { font-size: 12px; color: #666; }
+    </style>
+  </head>
+  <body>
+    <h1>管理モード</h1>
+    <p class="small">JSONを編集して保存すると、全端末に反映されます。</p>
+    <div class="row" style="margin-bottom: 8px;">
+      <input id="token" type="password" placeholder="管理パスワード" autocomplete="current-password" />
+      <button id="btnLoad">読み込み</button>
+      <button id="btnDefaults">初期データ</button>
+      <button id="btnPretty">整形</button>
+    </div>
+    <textarea id="editor" placeholder="{\n  \"version\": 1,\n  \"categories\": []\n}"></textarea>
+    <div class="row" style="margin-top: 8px;">
+      <button id="btnSave" style="background:#2e7d32;color:white;">保存</button>
+      <button id="btnReset" style="background:#c62828;color:white;">初期化して保存（要パスワード）</button>
+    </div>
+    <p class="small" id="status"></p>
+    <script type="module" src="admin.js"></script>
+  </body>
+  </html>
+
