@@ -1,17 +1,51 @@
 const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
 const status = (t, isError = false) => {
   const el = $('#status');
   el.textContent = t;
   el.style.color = isError ? '#c62828' : '#333';
 };
 
+let current = null; // working config
+
+// ----- helpers -----
+const slug = (s) =>
+  (s || '')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9\-]/g, '')
+    .slice(0, 32) || 'x';
+
+const uniqId = (base, exists) => {
+  let id = slug(base);
+  let i = 1;
+  while (exists.has(id)) {
+    id = `${slug(base)}-${i++}`;
+  }
+  return id;
+};
+
+const recomputeOrder = (cfg) => {
+  cfg.categories.forEach((c, i) => {
+    c.order = i + 1;
+    (c.items || []).forEach((it, j) => (it.order = j + 1));
+  });
+};
+
+const deepClone = (o) => JSON.parse(JSON.stringify(o || {}));
+
+// ----- data load/save -----
 async function loadConfig() {
   status('読み込み中…');
   try {
-    const r = await fetch('/api/config');
+    const r = await fetch('/api/config', { cache: 'no-store' });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
-    $('#editor').value = JSON.stringify(data.config, null, 2);
+    current = deepClone(data.config);
+    $('#editor').value = JSON.stringify(current, null, 2);
+    renderVisual();
     status(`読み込み完了（${data.source}）`);
   } catch (e) {
     console.error(e);
@@ -23,10 +57,12 @@ async function loadConfig() {
 async function loadDefaults() {
   status('初期データを読み込み…');
   try {
-    const r = await fetch('/defaults.json');
+    const r = await fetch('/defaults.json', { cache: 'no-store' });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
-    $('#editor').value = JSON.stringify(data, null, 2);
+    current = deepClone(data);
+    $('#editor').value = JSON.stringify(current, null, 2);
+    renderVisual();
     status('初期データを読み込みました');
   } catch (e) {
     console.error(e);
@@ -46,8 +82,12 @@ async function saveConfig(reset = false) {
     if (reset) {
       payload = { reset: true };
     } else {
-      const text = $('#editor').value;
-      payload = JSON.parse(text);
+      // pull latest from UI → editor → payload
+      const fromUI = collectFromVisual();
+      recomputeOrder(fromUI);
+      current = deepClone(fromUI);
+      $('#editor').value = JSON.stringify(current, null, 2);
+      payload = deepClone(current);
     }
     status('保存中…');
     const r = await fetch('/api/config', {
@@ -67,6 +107,143 @@ async function saveConfig(reset = false) {
   }
 }
 
+// ----- visual editor -----
+function renderVisual() {
+  const root = $('#cats');
+  if (!root) return;
+  root.innerHTML = '';
+  const cfg = current || { version: 1, categories: [] };
+  const cats = Array.isArray(cfg.categories) ? cfg.categories : [];
+  cats
+    .slice()
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
+    .forEach((cat, idx) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'cat';
+      wrap.dataset.index = idx;
+
+      const header = document.createElement('div');
+      header.className = 'cat-header';
+      const name = document.createElement('input');
+      name.type = 'text';
+      name.placeholder = 'カテゴリ名';
+      name.value = cat.name || '';
+      name.addEventListener('input', () => (cat.name = name.value));
+
+      const up = btn('▲', () => moveCategory(idx, -1));
+      const down = btn('▼', () => moveCategory(idx, +1));
+      const del = btn('削除', () => deleteCategory(idx), 'danger');
+
+      header.append(name, up, down, del);
+      wrap.append(header);
+
+      const items = document.createElement('div');
+      items.className = 'items';
+
+      (cat.items || [])
+        .slice()
+        .sort((a, b) => (a.order || 0) - (b.order || 0))
+        .forEach((it, jdx) => {
+          const row = document.createElement('div');
+          row.className = 'item';
+          row.dataset.index = jdx;
+
+          const iname = document.createElement('input');
+          iname.type = 'text';
+          iname.placeholder = '項目名';
+          iname.value = it.name || '';
+          iname.addEventListener('input', () => (it.name = iname.value));
+
+          const iup = btn('▲', () => moveItem(idx, jdx, -1));
+          const idown = btn('▼', () => moveItem(idx, jdx, +1));
+          const idel = btn('削除', () => deleteItem(idx, jdx), 'danger');
+
+          row.append(iname, iup, idown, idel);
+          items.append(row);
+        });
+
+      const addItem = btn('＋ 項目追加', () => addItemToCategory(idx));
+      addItem.classList.add('ghost');
+      items.append(addItem);
+
+      wrap.append(items);
+      root.append(wrap);
+    });
+}
+
+function btn(label, onClick, cls) {
+  const b = document.createElement('button');
+  b.textContent = label;
+  if (cls) b.classList.add(cls);
+  b.addEventListener('click', onClick);
+  return b;
+}
+
+function moveCategory(i, delta) {
+  const arr = current.categories || (current.categories = []);
+  const j = i + delta;
+  if (j < 0 || j >= arr.length) return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  renderVisual();
+}
+
+function deleteCategory(i) {
+  (current.categories || (current.categories = [])).splice(i, 1);
+  renderVisual();
+}
+
+function addCategory() {
+  current.categories || (current.categories = []);
+  const exists = new Set(current.categories.map((c) => c.id));
+  const name = prompt('新しいカテゴリ名は？', '新しいカテゴリ');
+  if (!name) return;
+  const id = uniqId(name, exists);
+  current.categories.push({ id, name, order: (current.categories.length || 0) + 1, items: [] });
+  renderVisual();
+}
+
+function moveItem(ci, ii, delta) {
+  const arr = current.categories[ci].items || (current.categories[ci].items = []);
+  const j = ii + delta;
+  if (j < 0 || j >= arr.length) return;
+  [arr[ii], arr[j]] = [arr[j], arr[ii]];
+  renderVisual();
+}
+
+function deleteItem(ci, ii) {
+  const arr = current.categories[ci].items || (current.categories[ci].items = []);
+  arr.splice(ii, 1);
+  renderVisual();
+}
+
+function addItemToCategory(ci) {
+  const cat = current.categories[ci];
+  const exists = new Set((cat.items || []).map((it) => it.id));
+  const name = prompt('新しい項目名は？', '新しい項目');
+  if (!name) return;
+  const id = uniqId(name, exists);
+  (cat.items || (cat.items = [])).push({ id, name, order: (cat.items?.length || 0) + 1 });
+  renderVisual();
+}
+
+function collectFromVisual() {
+  // current already reflects in-place edits + move operations.
+  const cfg = deepClone(current || { version: 1, categories: [] });
+  // ensure ids are present
+  const seenCat = new Set();
+  cfg.categories.forEach((c) => {
+    if (!c.id) c.id = uniqId(c.name || 'cat', seenCat);
+    seenCat.add(c.id);
+    const seenItem = new Set();
+    (c.items || []).forEach((it) => {
+      if (!it.id) it.id = uniqId(it.name || 'item', seenItem);
+      seenItem.add(it.id);
+    });
+  });
+  return cfg;
+}
+
+// ----- events -----
 $('#btnLoad').addEventListener('click', loadConfig);
 $('#btnDefaults').addEventListener('click', loadDefaults);
 $('#btnPretty').addEventListener('click', () => {
@@ -81,6 +258,19 @@ $('#btnPretty').addEventListener('click', () => {
 });
 $('#btnSave').addEventListener('click', () => saveConfig(false));
 $('#btnReset').addEventListener('click', () => saveConfig(true));
+$('#btnAddCategory').addEventListener('click', addCategory);
+
+// tabs
+$$('.tab').forEach((t) =>
+  t.addEventListener('click', () => {
+    $$('.tab').forEach((x) => x.classList.remove('active'));
+    t.classList.add('active');
+    const tab = t.dataset.tab;
+    $$('.panel').forEach((p) => p.classList.remove('active'));
+    $('#panel-' + tab).classList.add('active');
+  })
+);
 
 // 初回ロード
 loadConfig();
+

@@ -6,30 +6,58 @@
     <title>管理モード | 日報ジェネレーター</title>
     <link rel="stylesheet" href="styles.css" />
     <style>
-      body { max-width: 840px; margin: 0 auto; padding: 16px; }
+      :root { color-scheme: light dark; }
+      body { max-width: 980px; margin: 0 auto; padding: 16px; }
       .row { display: flex; gap: 8px; align-items: center; }
-      .row input[type="password"] { flex: 1; }
+      .row input[type="password"], .row input[type="text"] { flex: 1; }
+      button { padding: 8px 12px; border-radius: 8px; border: 1px solid #9993; background: #f5f5f5; }
+      button.primary { background: #2e7d32; color: white; border-color: #2e7d32; }
+      button.danger { background: #c62828; color: white; border-color: #c62828; }
+      button.ghost { background: transparent; border-color: #9993; }
       textarea { width: 100%; height: 60vh; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-      button { padding: 10px 14px; }
       .small { font-size: 12px; color: #666; }
+      .tabs { display: flex; gap: 8px; margin: 12px 0; border-bottom: 1px solid #9993; }
+      .tab { padding: 8px 12px; cursor: pointer; border-radius: 8px 8px 0 0; }
+      .tab.active { background: #0000000a; }
+      .panel { display: none; }
+      .panel.active { display: block; }
+      .cat { border: 1px solid #9993; border-radius: 12px; padding: 12px; margin: 12px 0; background: #00000005; }
+      .cat-header { display:flex; gap:8px; align-items:center; }
+      .items { margin-top: 8px; padding-left: 6px; }
+      .item { display:flex; gap:8px; align-items:center; margin: 6px 0; }
+      .muted { color:#666; font-size:12px; }
+      .spacer { flex:1; }
+      .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; padding:2px 6px; border:1px solid #9994; border-radius:6px; font-size:12px; }
     </style>
   </head>
   <body>
     <h1>管理モード</h1>
-    <p class="small">JSONを編集して保存すると、全端末に反映されます。</p>
     <div class="row" style="margin-bottom: 8px;">
       <input id="token" type="password" placeholder="管理パスワード" autocomplete="current-password" />
-      <button id="btnLoad">読み込み</button>
-      <button id="btnDefaults">初期データ</button>
-      <button id="btnPretty">整形</button>
+      <button id="btnLoad" class="ghost">読み込み</button>
+      <button id="btnDefaults" class="ghost">初期データ</button>
+      <div class="spacer"></div>
+      <button id="btnSave" class="primary">保存</button>
+      <button id="btnReset" class="danger">初期化して保存</button>
     </div>
-    <textarea id="editor" placeholder="{\n  \"version\": 1,\n  \"categories\": []\n}"></textarea>
-    <div class="row" style="margin-top: 8px;">
-      <button id="btnSave" style="background:#2e7d32;color:white;">保存</button>
-      <button id="btnReset" style="background:#c62828;color:white;">初期化して保存（要パスワード）</button>
+    <div class="tabs">
+      <div class="tab active" data-tab="visual">ビジュアル編集</div>
+      <div class="tab" data-tab="json">JSON編集</div>
+    </div>
+    <div id="panel-visual" class="panel active">
+      <div class="row" style="margin:8px 0;">
+        <button id="btnAddCategory">＋ カテゴリ追加</button>
+        <span class="muted">順番は▲▼ボタンで入れ替えできます</span>
+      </div>
+      <div id="cats"></div>
+    </div>
+    <div id="panel-json" class="panel">
+      <div class="row" style="margin-bottom: 8px;">
+        <button id="btnPretty" class="ghost">整形</button>
+      </div>
+      <textarea id="editor" placeholder="{\n  \"version\": 1,\n  \"categories\": []\n}"></textarea>
     </div>
     <p class="small" id="status"></p>
     <script type="module" src="admin.js"></script>
   </body>
   </html>
-
