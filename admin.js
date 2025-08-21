@@ -114,13 +114,38 @@ function renderVisual() {
   root.innerHTML = '';
   const cfg = current || { version: 1, categories: [] };
   const cats = Array.isArray(cfg.categories) ? cfg.categories : [];
-  cats
-    .slice()
-    .sort((a, b) => (a.order || 0) - (b.order || 0))
-    .forEach((cat, idx) => {
+  cats.forEach((cat, idx) => {
       const wrap = document.createElement('div');
       wrap.className = 'cat';
       wrap.dataset.index = idx;
+      wrap.setAttribute('draggable', 'true');
+
+      // DnD: categories
+      wrap.addEventListener('dragstart', (e) => {
+        try { e.dataTransfer.effectAllowed = 'move'; } catch {}
+        try { e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'cat', from: idx })); } catch {}
+        wrap.classList.add('dragging');
+      });
+      wrap.addEventListener('dragend', () => wrap.classList.remove('dragging'));
+      wrap.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        wrap.classList.add('drop-target');
+        try { e.dataTransfer.dropEffect = 'move'; } catch {}
+      });
+      wrap.addEventListener('dragleave', () => wrap.classList.remove('drop-target'));
+      wrap.addEventListener('drop', (e) => {
+        e.preventDefault();
+        wrap.classList.remove('drop-target');
+        let data;
+        try { data = JSON.parse(e.dataTransfer.getData('text/plain') || '{}'); } catch { data = {}; }
+        if (data.type === 'cat') {
+          const from = data.from;
+          const to = idx;
+          if (from === to || from == null || to == null) return;
+          moveInArray(current.categories, from, to);
+          renderVisual();
+        }
+      });
 
       const header = document.createElement('div');
       header.className = 'cat-header';
@@ -140,13 +165,43 @@ function renderVisual() {
       const items = document.createElement('div');
       items.className = 'items';
 
-      (cat.items || [])
-        .slice()
-        .sort((a, b) => (a.order || 0) - (b.order || 0))
-        .forEach((it, jdx) => {
+      (cat.items || []).forEach((it, jdx) => {
           const row = document.createElement('div');
           row.className = 'item';
           row.dataset.index = jdx;
+          row.setAttribute('draggable', 'true');
+
+          // DnD: items (within and across categories)
+          row.addEventListener('dragstart', (e) => {
+            try { e.dataTransfer.effectAllowed = 'move'; } catch {}
+            try {
+              e.dataTransfer.setData(
+                'text/plain',
+                JSON.stringify({ type: 'item', fromCat: idx, fromIdx: jdx })
+              );
+            } catch {}
+            row.classList.add('dragging');
+          });
+          row.addEventListener('dragend', () => row.classList.remove('dragging'));
+          row.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            row.classList.add('drop-target');
+            try { e.dataTransfer.dropEffect = 'move'; } catch {}
+          });
+          row.addEventListener('dragleave', () => row.classList.remove('drop-target'));
+          row.addEventListener('drop', (e) => {
+            e.preventDefault();
+            row.classList.remove('drop-target');
+            let data;
+            try { data = JSON.parse(e.dataTransfer.getData('text/plain') || '{}'); } catch { data = {}; }
+            if (data.type === 'item') {
+              const { fromCat, fromIdx } = data;
+              const toCat = idx;
+              const toIdx = jdx; // insert before target row
+              moveItemAcross(fromCat, fromIdx, toCat, toIdx);
+              renderVisual();
+            }
+          });
 
           const iname = document.createElement('input');
           iname.type = 'text';
@@ -164,11 +219,44 @@ function renderVisual() {
 
       const addItem = btn('＋ 項目追加', () => addItemToCategory(idx));
       addItem.classList.add('ghost');
+      
+      // Allow drop to category items container (append at end)
+      items.addEventListener('dragover', (e) => { e.preventDefault(); try { e.dataTransfer.dropEffect = 'move'; } catch {}; items.classList.add('drop-target'); });
+      items.addEventListener('dragleave', () => items.classList.remove('drop-target'));
+      items.addEventListener('drop', (e) => {
+        e.preventDefault();
+        items.classList.remove('drop-target');
+        let data;
+        try { data = JSON.parse(e.dataTransfer.getData('text/plain') || '{}'); } catch { data = {}; }
+        if (data.type === 'item') {
+          const { fromCat, fromIdx } = data;
+          const toCat = idx;
+          const toIdx = (current.categories[toCat].items || []).length; // append
+          moveItemAcross(fromCat, fromIdx, toCat, toIdx);
+          renderVisual();
+        }
+      });
+
       items.append(addItem);
 
       wrap.append(items);
       root.append(wrap);
     });
+
+  // Allow dropping a category at end of list
+  root.addEventListener('dragover', (e) => { e.preventDefault(); try { e.dataTransfer.dropEffect = 'move'; } catch {}; });
+  root.addEventListener('drop', (e) => {
+    e.preventDefault();
+    let data;
+    try { data = JSON.parse(e.dataTransfer.getData('text/plain') || '{}'); } catch { data = {}; }
+    if (data.type === 'cat') {
+      const from = data.from;
+      const to = current.categories.length - 1;
+      if (from == null) return;
+      moveInArray(current.categories, from, to);
+      renderVisual();
+    }
+  });
 }
 
 function btn(label, onClick, cls) {
@@ -243,6 +331,20 @@ function collectFromVisual() {
   return cfg;
 }
 
+function moveInArray(arr, from, to) {
+  if (from === to) return;
+  const [v] = arr.splice(from, 1);
+  arr.splice(to, 0, v);
+}
+
+function moveItemAcross(fromCat, fromIdx, toCat, toIdx) {
+  const fromArr = current.categories[fromCat].items || (current.categories[fromCat].items = []);
+  const [v] = fromArr.splice(fromIdx, 1);
+  const toArr = current.categories[toCat].items || (current.categories[toCat].items = []);
+  if (toIdx > toArr.length) toIdx = toArr.length;
+  toArr.splice(toIdx, 0, v);
+}
+
 // ----- events -----
 $('#btnLoad').addEventListener('click', loadConfig);
 $('#btnDefaults').addEventListener('click', loadDefaults);
@@ -273,4 +375,3 @@ $$('.tab').forEach((t) =>
 
 // 初回ロード
 loadConfig();
-

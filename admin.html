@@ -28,6 +28,9 @@
       .muted { color:#666; font-size:12px; }
       .spacer { flex:1; }
       .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; padding:2px 6px; border:1px solid #9994; border-radius:6px; font-size:12px; }
+      .drag-note { font-size:12px; color:#666; margin-left:8px; }
+      .dragging { opacity: 0.5; }
+      .drop-target { outline: 2px dashed #4caf50; }
     </style>
   </head>
   <body>
@@ -47,7 +50,7 @@
     <div id="panel-visual" class="panel active">
       <div class="row" style="margin:8px 0;">
         <button id="btnAddCategory">＋ カテゴリ追加</button>
-        <span class="muted">順番は▲▼ボタンで入れ替えできます</span>
+        <span class="muted">順番はドラッグ、または▲▼ボタンで変更できます</span>
       </div>
       <div id="cats"></div>
     </div>
