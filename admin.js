@@ -15,7 +15,8 @@ async function loadConfig() {
     status(`読み込み完了（${data.source}）`);
   } catch (e) {
     console.error(e);
-    status('読み込みに失敗しました', true);
+    status('読み込みに失敗 → 初期データに切替', true);
+    await loadDefaults();
   }
 }
 
@@ -83,4 +84,3 @@ $('#btnReset').addEventListener('click', () => saveConfig(true));
 
 // 初回ロード
 loadConfig();
-

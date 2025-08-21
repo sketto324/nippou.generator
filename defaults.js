@@ -1,0 +1,34 @@
+export const DEFAULTS = {
+  version: 1,
+  categories: [
+    {
+      id: 'exercise',
+      name: '運動',
+      order: 1,
+      items: [
+        { id: 'walk', name: 'ウォーキング', order: 1 },
+        { id: 'bike', name: 'エアロバイク', order: 2 },
+        { id: 'muscle', name: '筋トレ', order: 3 },
+      ],
+    },
+    {
+      id: 'work',
+      name: '仕事',
+      order: 2,
+      items: [
+        { id: 'coding', name: 'コーディング', order: 1 },
+        { id: 'meeting', name: 'ミーティング', order: 2 },
+      ],
+    },
+    {
+      id: 'study',
+      name: '学習',
+      order: 3,
+      items: [
+        { id: 'reading', name: '読書', order: 1 },
+        { id: 'course', name: 'オンライン講座', order: 2 },
+      ],
+    },
+  ],
+};
+

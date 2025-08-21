@@ -1,5 +1,5 @@
 import { list, put } from '@vercel/blob';
-import fs from 'fs/promises';
+import { DEFAULTS } from '../defaults.js';
 
 const BLOB_KEY = 'nippou-config.json';
 
@@ -16,25 +16,27 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
+    // Try Blob first; on any error, fall back to in-bundled defaults
     try {
-      // Try to find existing config blob
-      const { blobs } = await list({ prefix: BLOB_KEY });
-      if (blobs && blobs.length > 0) {
-        const url = blobs[0].url;
-        const r = await fetch(url);
-        if (r.ok) {
-          const data = await r.json();
-          return res.status(200).json({ source: 'blob', config: data });
+      try {
+        const { blobs } = await list({ prefix: BLOB_KEY });
+        if (blobs && blobs.length > 0) {
+          const url = blobs[0].url;
+          const r = await fetch(url);
+          if (r.ok) {
+            const data = await r.json();
+            return res.status(200).json({ source: 'blob', config: data });
+          }
         }
+      } catch (_) {
+        // ignore blob errors and fall back
       }
 
-      // Fallback to defaults.json in repo
-      const text = await fs.readFile(process.cwd() + '/defaults.json', 'utf-8');
-      const data = JSON.parse(text);
-      return res.status(200).json({ source: 'defaults', config: data });
+      // Fallback to bundled defaults
+      return res.status(200).json({ source: 'defaults', config: DEFAULTS });
     } catch (e) {
       console.error(e);
-      return res.status(500).json({ error: 'Failed to load config' });
+      return res.status(200).json({ source: 'defaults', config: DEFAULTS });
     }
   }
 
