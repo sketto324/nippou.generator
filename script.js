@@ -263,7 +263,7 @@ function copyOutput() {
 
 document.addEventListener('DOMContentLoaded', () => {
   setToday();
-  renderCategories();
+  // renderCategories(); // config-loader.jsが設定を読み込んだ後に描画するため、ここでは不要
   document.getElementById('generate').addEventListener('click', generateReport);
   document.getElementById('copy').addEventListener('click', copyOutput);
 });
