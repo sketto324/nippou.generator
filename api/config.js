@@ -17,26 +17,25 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-      const { blobs } = await list(); // List ALL blobs to see their pathnames
+      const { blobs } = await list({ prefix: BLOB_KEY });
       if (blobs && blobs.length > 0) {
-        console.log('--- FOUND BLOBS ---');
-        console.log(blobs.map(b => b.pathname));
-
-        // Try to find the config blob manually
-        const configBlob = blobs.find(b => b.pathname === BLOB_KEY);
-
-        if (configBlob) {
-            const r = await fetch(configBlob.url, { cache: 'no-store' });
-            if (r.ok) {
-              const data = await r.json();
-              return res.status(200).json({ source: 'blob', config: data });
-            }
+        // If multiple configs exist, sort by uploaded time and get the latest one.
+        blobs.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+        const latestBlob = blobs[0];
+        const r = await fetch(latestBlob.url, { cache: 'no-store' });
+        if (r.ok) {
+          const data = await r.json();
+          return res.status(200).json({ source: 'blob', config: data });
+        } else {
+          // If fetching the blob fails, fall through to defaults.
+          console.error(`Failed to fetch blob: ${r.status}`, await r.text());
         }
       }
+      // If no blob, fall through to defaults.
       return res.status(200).json({ source: 'defaults', config: DEFAULTS });
     } catch (e) {
       console.error('Error in /api/config GET:', e);
-      return res.status(200).json({ source: 'defaults', config: DEFAULTS });
+      return res.status(200).json({ source: 'defaults', config: DEFAULTS }); // On any error, return defaults
     }
   }
 
