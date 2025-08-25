@@ -77,6 +77,10 @@ textarea[readonly] { background: #faf7f0; }
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
+  /* Temporary debug styles */
+  background-color: #ffdddd; /* Light red background */
+  padding: 5px; /* Some padding */
+  border: 1px solid red; /* Red border */
 }
 .category-headline { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
 .category-emoji {
