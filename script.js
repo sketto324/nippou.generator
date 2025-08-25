@@ -56,15 +56,6 @@ let categories = JSON.parse(JSON.stringify(defaultCategories));
 function $(sel, root = document) { return root.querySelector(sel); }
 function $all(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
 
-const categoryIcons = {
-  work: '💼',
-  courses: '🎓',
-  social: '📣',
-  study: '📚',
-  exercise: '🏃',
-  house: '🏠',
-};
-
 function setToday() {
   const input = document.getElementById('report-date');
   const today = new Date();
@@ -83,18 +74,9 @@ function renderCategories() {
 
     const header = document.createElement('div');
     header.className = 'category-header';
-    const emoji = document.createElement('span');
-    emoji.className = 'category-emoji';
-    emoji.textContent = categoryIcons[cat.id] || '🗂️';
-
-    const title = document.createElement('div');
-    title.className = 'category-title';
-    title.textContent = cat.title;
-
-    // Wrap emoji + title together so they stay on one line
     const headline = document.createElement('div');
     headline.className = 'category-headline';
-    headline.append(emoji, title);
+    headline.append(title);
 
     const controls = document.createElement('div');
     controls.className = 'category-controls';
