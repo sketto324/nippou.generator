@@ -38,21 +38,21 @@
       ]
     },
     {
+      "id": "house",
+      "name": "家事・育児",
+      "order": 5,
+      "items": [
+        { "id": "housework", "name": "家事", "order": 1, "type": "check" }
+      ]
+    },
+    {
       "id": "exercise",
       "name": "運動",
-      "order": 5,
+      "order": 6,
       "items": [
         { "id": "radio", "name": "ラジオ体操", "order": 1, "type": "check" },
         { "id": "catpose", "name": "猫のポーズ", "order": 2, "type": "check" },
         { "id": "aerobike", "name": "エアロバイク", "order": 3, "type": "check" }
-      ]
-    },
-    {
-      "id": "house",
-      "name": "家事・育児",
-      "order": 6,
-      "items": [
-        { "id": "housework", "name": "家事", "order": 1, "type": "check" }
       ]
     }
   ]
