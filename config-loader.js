@@ -48,4 +48,3 @@
     console.error('[config-loader] failed to load config', e);
   }
 })();
-
