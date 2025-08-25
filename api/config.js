@@ -16,28 +16,44 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
-    // Try Blob first; on any error, fall back to in-bundled defaults
-    try {
-      try {
-        const { blobs } = await list({ prefix: BLOB_KEY });
-        if (blobs && blobs.length > 0) {
-          const url = blobs[0].url;
-          const r = await fetch(url, { cache: 'no-store' });
-          if (r.ok) {
-            const data = await r.json();
-            return res.status(200).json({ source: 'blob', config: data });
-          }
-        }
-      } catch (_) {
-        // ignore blob errors and fall back
-      }
+    const debugInfo = {
+      timestamp: new Date().toISOString(),
+      blobListResult: null,
+      blobListError: null,
+      fetchedUrl: null,
+      fetchResponseOk: null,
+      fetchResponseStatus: null,
+      fetchError: null,
+      finalSource: 'defaults', // Assume defaults initially
+      config: DEFAULTS,
+      internalError: null, // To catch the silent error
+    };
 
-      // Fallback to bundled defaults
-      return res.status(200).json({ source: 'defaults', config: DEFAULTS });
+    try {
+      const { blobs } = await list({ prefix: BLOB_KEY });
+      debugInfo.blobListResult = blobs;
+
+      if (blobs && blobs.length > 0) {
+        const url = blobs[0].url;
+        debugInfo.fetchedUrl = url;
+        const r = await fetch(url, { cache: 'no-store' });
+        debugInfo.fetchResponseOk = r.ok;
+        debugInfo.fetchResponseStatus = r.status;
+        if (r.ok) {
+          const data = await r.json();
+          debugInfo.finalSource = 'blob';
+          debugInfo.config = data;
+        }
+      }
     } catch (e) {
-      console.error(e);
-      return res.status(200).json({ source: 'defaults', config: DEFAULTS });
+      // This is the critical part - we capture the silent error here
+      debugInfo.internalError = {
+        message: e.message,
+        stack: e.stack,
+      };
     }
+    
+    return res.status(200).json(debugInfo);
   }
 
   // POST: save config (admin only)
