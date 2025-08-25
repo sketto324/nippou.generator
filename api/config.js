@@ -16,45 +16,27 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
-    const debugInfo = {
-      timestamp: new Date().toISOString(),
-      blobListResult: null,
-      blobListError: null,
-      fetchedUrl: null,
-      fetchResponseOk: null,
-      fetchResponseStatus: null,
-      fetchError: null,
-      finalSource: 'defaults', // Assume defaults initially
-      config: DEFAULTS,
-      internalError: null, // To catch the silent error
-    };
-
     try {
-      const listResult = await list(); // List ALL blobs
-      debugInfo.blobListResult = listResult;
-      debugInfo.blobListResult = blobs;
-
+      const { blobs } = await list({ prefix: BLOB_KEY });
       if (blobs && blobs.length > 0) {
-        const url = blobs[0].url;
-        debugInfo.fetchedUrl = url;
-        const r = await fetch(url, { cache: 'no-store' });
-        debugInfo.fetchResponseOk = r.ok;
-        debugInfo.fetchResponseStatus = r.status;
+        // If multiple configs exist, sort by uploaded time and get the latest one.
+        blobs.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+        const latestBlob = blobs[0];
+        const r = await fetch(latestBlob.url, { cache: 'no-store' });
         if (r.ok) {
           const data = await r.json();
-          debugInfo.finalSource = 'blob';
-          debugInfo.config = data;
+          return res.status(200).json({ source: 'blob', config: data });
+        } else {
+          // If fetching the blob fails, fall through to defaults.
+          console.error(`Failed to fetch blob: ${r.status}`, await r.text());
         }
       }
+      // If no blob, fall through to defaults.
+      return res.status(200).json({ source: 'defaults', config: DEFAULTS });
     } catch (e) {
-      // This is the critical part - we capture the silent error here
-      debugInfo.internalError = {
-        message: e.message,
-        stack: e.stack,
-      };
+      console.error('Error in /api/config GET:', e);
+      return res.status(200).json({ source: 'defaults', config: DEFAULTS }); // On any error, return defaults
     }
-    
-    return res.status(200).json(debugInfo);
   }
 
   // POST: save config (admin only)

@@ -11,8 +11,6 @@
         const r = await fetch('/api/config', { cache: 'no-store' });
         if (!r.ok) throw new Error('api/config ' + r.status);
         const data = await r.json();
-        console.log('--- NIPPOU GENERATOR DEBUG INFO ---');
-        console.log(data);
         return data.config || data;
       } catch (e) {
         const r2 = await fetch('/defaults.json', { cache: 'no-store' });
