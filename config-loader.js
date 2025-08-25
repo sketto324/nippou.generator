@@ -7,16 +7,9 @@
 (async () => {
   try {
     const cfg = await (async () => {
-      try {
-        const r = await fetch('/api/config', { cache: 'no-store' });
-        if (!r.ok) throw new Error('api/config ' + r.status);
-        const data = await r.json();
-        return data.config || data;
-      } catch (e) {
-        const r2 = await fetch('/defaults.json', { cache: 'no-store' });
-        if (!r2.ok) throw new Error('defaults.json ' + r2.status);
-        return await r2.json();
-      }
+      const r2 = await fetch('/defaults.json', { cache: 'no-store' });
+      if (!r2.ok) throw new Error('defaults.json ' + r2.status);
+      return await r2.json();
     })();
 
     // Sort by order if provided
