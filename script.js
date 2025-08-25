@@ -74,40 +74,14 @@ function renderCategories() {
 
     const header = document.createElement('div');
     header.className = 'category-header';
+
+    const title = document.createElement('div');
+    title.className = 'category-title';
+    title.textContent = cat.title;
+
     const headline = document.createElement('div');
     headline.className = 'category-headline';
     headline.append(title);
-
-    const controls = document.createElement('div');
-    controls.className = 'category-controls';
-    const addRow = document.createElement('div');
-    addRow.className = 'adder';
-    const nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.placeholder = '項目名を入力';
-    nameInput.setAttribute('aria-label', '新規項目名');
-    const typeSelect = document.createElement('select');
-    typeSelect.innerHTML = `
-      <option value="check">チェックのみ</option>
-      <option value="count">数（本数等）</option>
-      <option value="streak">連続日数</option>
-    `;
-    typeSelect.setAttribute('aria-label', '新規項目タイプ');
-    const addBtn = document.createElement('button');
-    addBtn.textContent = '＋ 項目追加';
-    addBtn.addEventListener('click', () => {
-      const name = nameInput.value.trim();
-      if (!name) return;
-      const type = typeSelect.value;
-      const id = `c${catIndex}-${Date.now()}`;
-      const newItem = { id, label: name, type };
-      if (type === 'count') newItem.suffix = '回';
-      categories[catIndex].items.push(newItem);
-      renderCategories();
-    });
-    addRow.append(nameInput, typeSelect, addBtn);
-    controls.appendChild(addRow);
-    header.append(headline, controls);
 
     card.appendChild(header);
 
