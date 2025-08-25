@@ -77,7 +77,7 @@ function renderCategories() {
 
     const title = document.createElement('div');
     title.className = 'category-title';
-    title.textContent = cat.title;
+    title.textContent = cat.title || cat.id || 'Unnamed Category';
 
     const headline = document.createElement('div');
     headline.className = 'category-headline';
