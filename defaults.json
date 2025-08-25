@@ -3,7 +3,7 @@
   "categories": [
     {
       "id": "work",
-      "name": "お仕事",
+      "name": "💼お仕事",
       "order": 1,
       "items": [
         { "id": "bo-e", "name": "バックオフィス業務E", "order": 1, "type": "check" },
@@ -12,7 +12,7 @@
     },
     {
       "id": "courses",
-      "name": "講座受講",
+      "name": "🎓講座受講",
       "order": 2,
       "items": [
         { "id": "canva", "name": "Canvaプロ養成講座", "order": 1, "type": "check" },
@@ -21,7 +21,7 @@
     },
     {
       "id": "social",
-      "name": "発信活動",
+      "name": "📢発信活動",
       "order": 3,
       "items": [
         { "id": "x-posts", "name": "X投稿", "order": 1, "type": "count", "suffix": "ポスト" },
@@ -30,7 +30,7 @@
     },
     {
       "id": "study",
-      "name": "勉強",
+      "name": "📚勉強",
       "order": 4,
       "items": [
         { "id": "license", "name": "資格勉強", "order": 1, "type": "check" },
@@ -39,7 +39,7 @@
     },
     {
       "id": "exercise",
-      "name": "運動",
+      "name": "🏃‍♀️運動",
       "order": 5,
       "items": [
         { "id": "radio", "name": "ラジオ体操", "order": 1, "type": "check" },
@@ -49,10 +49,11 @@
     },
     {
       "id": "house",
-      "name": "家事・育児",
+      "name": "🏠家事・育児",
       "order": 6,
       "items": [
-        { "id": "housework", "name": "家事", "order": 1, "type": "check" }
+        { "id": "lesson-pickup", "name": "習い事送迎", "order": 1, "type": "check" },
+        { "id": "housework", "name": "家事", "order": 2, "type": "check" }
       ]
     }
   ]
