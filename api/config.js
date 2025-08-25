@@ -1,4 +1,4 @@
-import { list, put } from '@vercel/blob';
+import { list, put, del } from '@vercel/blob';
 import { DEFAULTS } from '../defaults.js';
 
 const BLOB_KEY = 'nippou-config.json';
@@ -52,12 +52,9 @@ export default async function handler(req, res) {
     const body = req.body && typeof req.body === 'object' ? req.body : JSON.parse(req.body || '{}');
 
     if (body && body.reset === true) {
-      // Reset to defaults by overwriting blob with defaults
-      const text = await fs.readFile(process.cwd() + '/defaults.json', 'utf-8');
-      await put(BLOB_KEY, text, {
-        access: 'public',
-        contentType: 'application/json',
-      });
+      // Reset to defaults by deleting the blob.
+      // The GET handler will fall back to defaults if the blob doesn't exist.
+      await del(BLOB_KEY);
       return res.status(200).json({ ok: true, reset: true });
     }
 
