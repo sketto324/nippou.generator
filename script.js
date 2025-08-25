@@ -221,7 +221,6 @@ function copyOutput() {
 
 document.addEventListener('DOMContentLoaded', () => {
   setToday();
-  renderCategories();
   document.getElementById('generate').addEventListener('click', generateReport);
   document.getElementById('copy').addEventListener('click', copyOutput);
 });
