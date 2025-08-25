@@ -30,6 +30,8 @@
     }
     const normalized = { ...cfg, categories };
 
+    console.log('[config-loader] Normalized config:', normalized);
+
     // Expose globally
     window.NIPPOU_CONFIG = normalized;
 
