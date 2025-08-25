@@ -30,7 +30,8 @@ export default async function handler(req, res) {
     };
 
     try {
-      const { blobs } = await list({ prefix: BLOB_KEY });
+      const listResult = await list(); // List ALL blobs
+      debugInfo.blobListResult = listResult;
       debugInfo.blobListResult = blobs;
 
       if (blobs && blobs.length > 0) {
