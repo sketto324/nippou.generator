@@ -83,6 +83,7 @@ function renderCategories() {
     headline.className = 'category-headline';
     headline.append(title);
 
+    header.append(headline);
     card.appendChild(header);
 
     const items = document.createElement('div');
