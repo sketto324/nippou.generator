@@ -11,10 +11,13 @@
         const r = await fetch('/api/config', { cache: 'no-store' });
         if (!r.ok) throw new Error('api/config ' + r.status);
         const data = await r.json();
+        console.log('[config-loader] Loaded config from /api/config');
         return data.config || data;
       } catch (e) {
+        console.error('[config-loader] Failed to load from /api/config, falling back to defaults:', e);
         const r2 = await fetch('/defaults.json', { cache: 'no-store' });
         if (!r2.ok) throw new Error('defaults.json ' + r2.status);
+        console.log('[config-loader] Loaded config from /defaults.json');
         return await r2.json();
       }
     })();
