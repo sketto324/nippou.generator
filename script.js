@@ -38,6 +38,7 @@ const defaultCategories = [
     items: [
       { id: "radio", label: "ラジオ体操", type: "check" },
       { id: "catpose", label: "猫のポーズ", type: "check" },
+      { id: "aerobike", label: "エアロバイク", type: "check" },
     ],
   },
   {
@@ -266,4 +267,36 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCategories();
   document.getElementById('generate').addEventListener('click', generateReport);
   document.getElementById('copy').addEventListener('click', copyOutput);
+});
+
+// --- config loader integration ---
+// This will be called by config-loader.js after config is ready
+function bootstrap(config) {
+  if (!config || !Array.isArray(config.categories)) {
+    console.warn('bootstrap called with invalid config, using defaults');
+    return;
+  }
+
+  // Map config format to the one used by this script
+  const mapped = config.categories.map(c => ({
+    id: c.id,
+    title: c.name,
+    items: (c.items || []).map(it => ({
+      id: it.id,
+      label: it.name,
+      type: it.type || 'check', // Use type from config, fallback to 'check'
+      suffix: it.suffix || '',   // Pass through suffix
+    })),
+  }));
+
+  // Overwrite default categories
+  categories = mapped;
+
+  // Re-render
+  renderCategories();
+}
+
+// Also listen for event, just in case
+window.addEventListener('nippou:config-ready', (e) => {
+  bootstrap(e.detail);
 });

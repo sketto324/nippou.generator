@@ -2,33 +2,58 @@ export const DEFAULTS = {
   version: 1,
   categories: [
     {
-      id: 'exercise',
-      name: '運動',
+      id: "work",
+      name: "お仕事",
       order: 1,
       items: [
-        { id: 'walk', name: 'ウォーキング', order: 1 },
-        { id: 'bike', name: 'エアロバイク', order: 2 },
-        { id: 'muscle', name: '筋トレ', order: 3 },
+        { id: "bo-e", name: "バックオフィス業務E", order: 1, type: "check" },
+        { id: "bo-a", name: "バックオフィス業務A", order: 2, type: "check" },
       ],
     },
     {
-      id: 'work',
-      name: '仕事',
+      id: "courses",
+      name: "講座受講",
       order: 2,
       items: [
-        { id: 'coding', name: 'コーディング', order: 1 },
-        { id: 'meeting', name: 'ミーティング', order: 2 },
+        { id: "canva", name: "Canvaプロ養成講座", order: 1, type: "check" },
+        { id: "natsu", name: "プロフリ夏講座", order: 2, type: "check" },
       ],
     },
     {
-      id: 'study',
-      name: '学習',
+      id: "social",
+      name: "発信活動",
       order: 3,
       items: [
-        { id: 'reading', name: '読書', order: 1 },
-        { id: 'course', name: 'オンライン講座', order: 2 },
+        { id: "x-posts", name: "X投稿", order: 1, type: "count", suffix: "ポスト" },
+        { id: "note", name: "note投稿", order: 2, type: "check" },
+      ],
+    },
+    {
+      id: "study",
+      name: "勉強",
+      order: 4,
+      items: [
+        { id: "license", name: "資格勉強", order: 1, type: "check" },
+        { id: "duo", name: "Duolingo", order: 2, type: "streak" },
+      ],
+    },
+    {
+      id: "exercise",
+      name: "運動",
+      order: 5,
+      items: [
+        { id: "radio", name: "ラジオ体操", order: 1, type: "check" },
+        { id: "catpose", name: "猫のポーズ", order: 2, type: "check" },
+        { id: "aerobike", name: "エアロバイク", order: 3, type: "check" },
+      ],
+    },
+    {
+      id: "house",
+      name: "家事・育児",
+      order: 6,
+      items: [
+        { id: "housework", name: "家事", order: 1, type: "check" },
       ],
     },
   ],
 };
-
