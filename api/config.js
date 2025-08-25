@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         const { blobs } = await list({ prefix: BLOB_KEY });
         if (blobs && blobs.length > 0) {
           const url = blobs[0].url;
-          const r = await fetch(url);
+          const r = await fetch(url, { cache: 'no-store' });
           if (r.ok) {
             const data = await r.json();
             return res.status(200).json({ source: 'blob', config: data });
