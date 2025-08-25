@@ -17,21 +17,19 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-      const { blobs } = await list({ prefix: BLOB_KEY });
+      const { blobs } = await list(); // List ALL blobs
       if (blobs && blobs.length > 0) {
-        // If multiple configs exist, sort by uploaded time and get the latest one.
-        blobs.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
-        const latestBlob = blobs[0];
-        const r = await fetch(latestBlob.url, { cache: 'no-store' });
-        if (r.ok) {
-          const data = await r.json();
-          return res.status(200).json({ source: 'blob', config: data });
-        } else {
-          // If fetching the blob fails, fall through to defaults.
-          console.error(`Failed to fetch blob: ${r.status}`, await r.text());
+        // Try to find the config blob manually
+        const configBlob = blobs.find(b => b.pathname === BLOB_KEY);
+
+        if (configBlob) {
+            const r = await fetch(configBlob.url, { cache: 'no-store' });
+            if (r.ok) {
+              const data = await r.json();
+              return res.status(200).json({ source: 'blob', config: data });
+            }
         }
       }
-      // If no blob, fall through to defaults.
       return res.status(200).json({ source: 'defaults', config: DEFAULTS });
     } catch (e) {
       console.error('Error in /api/config GET:', e);
